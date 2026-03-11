@@ -149,7 +149,7 @@ public class Main {
         }
 
         if (ranges[39] != null){
-            System.out.println("Extra range response detected, please investigate");
+            System.out.println("Extra range response detected, please investigate and adjust range response and RT");
         }
 
     }
