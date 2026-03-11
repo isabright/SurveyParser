@@ -1,5 +1,6 @@
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -13,7 +14,7 @@ public class Main {
         File[] files = directory.listFiles();
         if (files != null) {
             for (File file : files) {
-                System.out.println(file.getName());
+                handleFile(file.getAbsolutePath());
             }
         } else {
             System.out.println("Directory is empty or does not exist.");
@@ -23,17 +24,20 @@ public class Main {
 
     }
 
-    public static void handleFile(File myFile){
+    public static void handleFile(String filename){
         try {
-            File partFile = new File(String.valueOf(myFile));
+            File partFile = new File(filename);
             Scanner fileReader = new Scanner(partFile);
             FileWriter wtr = new FileWriter("participant_results.txt");
 
-            String data;
+            String data ="";
             String[] cqs = new String[10];
             int cqIndex = 0;
             String[] ranges = new String[40];
             int rangeIndex = 0;
+            String[] rts = new String[40];
+            int rtIndex = 0;
+            String lastRT = "";
             String id = "0";
             String age = "0";
 
@@ -53,6 +57,11 @@ public class Main {
                     age = data.substring(3);
                 }
 
+                // record T (time spent on screen)
+                if (data.contains("T: ")){
+                    lastRT = data.substring(3);
+                }
+
                 // place comprehension questions responses into an array
                 if (data.contains("cq1")){
                     while (fileReader.hasNext() && !data.contains("a:")){
@@ -70,9 +79,15 @@ public class Main {
                     ++rangeIndex;
 //                     wtr.write(data.substring(3) + "/n");
 //                     System.out.println(data.substring(3));
+                    rts[rtIndex] = lastRT;
+                    ++rtIndex;
                 }
 
             } // end While
+
+            if (data.contains("end")){
+                printFile(id, age, cqs, ranges, rts, wtr);
+            }
 //
 //            // Write CQ array
 //            System.out.println("----------------------------------------");
@@ -103,34 +118,39 @@ public class Main {
 //            }
 
             // Write CQs and ranges at once:
-            System.out.println("\n----------------------------------------");
-            System.out.println("Printing Range Question Responses");
-            System.out.println("----------------------------------------");
-            System.out.println(id);
-            System.out.println(age);
-            System.out.println("----------------------------------------");
-            int cqCount = 0;
-            for (int i = 0; i < 38; ++i){
-                if (i == 0 || i == 1){
-                    continue;
-                }
-                if (i == 2 || i == 7 || i == 11 || i == 17 || i == 23 || i == 29 || i == 33 || i == 37){
-                    System.out.println( cqs[cqCount] + "\t" + ranges[i]);
-                    wtr.write(cqs[cqCount] + "\t" + ranges[i] + "\n");
-                    ++cqCount;
-                }
-                else {
-                    System.out.println("0\t" + ranges[i]);
-                    wtr.write("0\t" + ranges[i] + "\n");
-                }
-            }
 
-            if (ranges[39] != null){
-                System.out.println("Extra range response detected, please investigate");
-            }
         } catch (Exception e) {
             System.out.print("An error occured: ");
             e.printStackTrace();
         }
+    }
+
+    public static void printFile(String id, String age, String[] cqs, String[] ranges, String[] rts, FileWriter wtr) throws IOException {
+//        System.out.println("\n----------------------------------------");
+//        System.out.println("Printing Range Question Responses");
+//        System.out.println("----------------------------------------");
+//        System.out.println(id);
+//        System.out.println(age);
+//        System.out.println("----------------------------------------");
+        int cqCount = 0;
+        for (int i = 0; i < 38; ++i){
+            if (i == 0 || i == 1){
+                continue;
+            }
+            if (i == 2 || i == 7 || i == 11 || i == 17 || i == 23 || i == 29 || i == 33 || i == 37){
+                System.out.println( id + "\t" + age + "\t" + cqs[cqCount] + "\t" + ranges[i] + "\t" + rts[i]);
+                wtr.write(id + "\t" + age + "\t" +cqs[cqCount] + "\t" + ranges[i] + "\t" + rts[i] + "\n");
+                ++cqCount;
+            }
+            else {
+                System.out.println(id + "\t" + age + "\t" +"0\t" + ranges[i] + "\t" + rts[i]);
+                wtr.write(id + "\t" + age + "\t" +"0\t" + ranges[i] + "\t" + rts[i] + "\n");
+            }
+        }
+
+        if (ranges[39] != null){
+            System.out.println("Extra range response detected, please investigate");
+        }
+
     }
 }
