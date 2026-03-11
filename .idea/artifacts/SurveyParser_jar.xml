@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="SurveyParser:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/SurveyParser_jar</output-path>
+    <root id="archive" name="SurveyParser.jar">
+      <element id="module-output" name="SurveyParser" />
+    </root>
+  </artifact>
+</component>
